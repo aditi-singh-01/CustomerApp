@@ -1,4 +1,4 @@
-package com.example.fooddeliveryapp.presentaion.ui.theme
+package com.example.fooddeliveryapp.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
