@@ -1,5 +1,6 @@
-package com.example.fooddeliveryapp.presentaion.ui.home
+package com.example.fooddeliveryapp.presentation.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,9 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.material.icons.filled.List
-
-
-
+import com.ramcosta.composedestinations.annotation.Destination
 
 data class RestaurantUiModel(
     val name: String,
@@ -75,7 +74,9 @@ val dummyRestaurants = listOf(
 
 )
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
+@Destination(start = true)
 fun HomeScreen() {
 
     var selectedTab by remember { mutableStateOf<BottomNavItem>(BottomNavItem.Home) }
@@ -87,11 +88,9 @@ fun HomeScreen() {
                 onItemSelected = { selectedTab = it }
             )
         }
-    ) { paddingValues ->
-
+    ) {  _ ->
         Column(
             modifier = Modifier
-                .padding(paddingValues)
                 .fillMaxSize()
         ) {
 
@@ -101,7 +100,7 @@ fun HomeScreen() {
 
             when (selectedTab) {
                 BottomNavItem.Home -> {
-                    // 👇 Your existing restaurant list
+                    //existing restaurant list
                     LazyColumn {
                         items(dummyRestaurants) { restaurant ->
                             RestaurantCard(restaurant)
@@ -110,7 +109,7 @@ fun HomeScreen() {
                 }
 
                 BottomNavItem.Orders -> {
-                    // 👇 Temporary Orders UI
+                    //Temporary Orders UI
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -138,8 +137,6 @@ fun RestaurantCard(restaurant: RestaurantUiModel) {
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-
-            // 🖼 IMAGE
             AsyncImage(
                 model = restaurant.imageUrl,
                 contentDescription = restaurant.name,
@@ -150,8 +147,6 @@ fun RestaurantCard(restaurant: RestaurantUiModel) {
             )
 
             Spacer(modifier = Modifier.width(12.dp))
-
-            // 📝 TEXT
             Column {
                 Text(
                     text = restaurant.name,
@@ -174,7 +169,6 @@ fun HomeTopBar() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .statusBarsPadding()
             .padding( horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
