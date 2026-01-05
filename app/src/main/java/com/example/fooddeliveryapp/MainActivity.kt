@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
-import com.example.fooddeliveryapp.presentation.ui.NavGraphs
+import com.example.fooddeliveryapp.presentation.ui.screen.NavGraphs
 import com.example.fooddeliveryapp.presentation.ui.theme.FoodDeliveryAppTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
 

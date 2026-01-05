@@ -1,4 +1,4 @@
-package com.example.fooddeliveryapp.presentation.ui
+package com.example.fooddeliveryapp.presentation.ui.screen
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
@@ -21,7 +21,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.material.icons.filled.List
+import com.example.fooddeliveryapp.presentation.ui.screen.destinations.RestrauntMenuScreenDestination
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 data class RestaurantUiModel(
     val name: String,
@@ -77,7 +79,7 @@ val dummyRestaurants = listOf(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 @Destination(start = true)
-fun HomeScreen() {
+fun HomeScreen( navigator: DestinationsNavigator) {
 
     var selectedTab by remember { mutableStateOf<BottomNavItem>(BottomNavItem.Home) }
 
@@ -100,12 +102,22 @@ fun HomeScreen() {
 
             when (selectedTab) {
                 BottomNavItem.Home -> {
-                    //existing restaurant list
                     LazyColumn {
                         items(dummyRestaurants) { restaurant ->
-                            RestaurantCard(restaurant)
+                            RestaurantCard(
+                                restaurant = restaurant,
+                                onClick = {
+                                    navigator.navigate(
+                                        RestrauntMenuScreenDestination
+                                        (
+                                            restaurantName = restaurant.name
+                                        )
+                                    )
+                                }
+                            )
                         }
                     }
+
                 }
 
                 BottomNavItem.Orders -> {
