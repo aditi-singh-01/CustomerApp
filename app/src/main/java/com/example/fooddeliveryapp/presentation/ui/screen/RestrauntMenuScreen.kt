@@ -20,18 +20,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.fooddeliveryapp.presentation.ui.viewModel.CartViewModel
+import com.example.fooddeliveryapp.presentation.ui.viewModel.RestaurantMenuViewModel
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 data class MenuItemUiModel(
    val name: String,
@@ -90,17 +88,29 @@ val dummyMenuItems = listOf(
 @Composable
 @Destination
 fun RestrauntMenuScreen(
-   restaurantName: String
+   restaurantName: String,
+   navigator: DestinationsNavigator,
+   viewModel: RestaurantMenuViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+   cartViewModel: CartViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
-   var selectedTab by remember { mutableStateOf<BottomNavItem>(BottomNavItem.Home) }
-
    Scaffold(
       bottomBar = {
-         BottomNavBar(selectedTab) { selectedTab = it }
+         BottomNavBar(
+            selectedItem = viewModel.selectedTab,
+            onItemSelected = viewModel::onTabSelected
+         )
       }
    ) {
       Column {
-         HomeTopBar()
+
+         HomeTopBar(
+            cartCount = cartViewModel.cartItemCount,
+            showBackButton = true,
+            onBackClick = {
+               navigator.popBackStack()
+            }
+         )
+
          Spacer(modifier = Modifier.height(8.dp))
 
          Text(
@@ -112,14 +122,16 @@ fun RestrauntMenuScreen(
          Spacer(modifier = Modifier.height(8.dp))
 
          LazyColumn {
-            items(dummyMenuItems) { item ->
-               MenuItemCard(item)
+            items(viewModel.menuItems) { item ->
+               MenuItemCard(
+                  item = item,
+                  onAddClick = { cartViewModel.addItem() }
+               )
             }
          }
       }
    }
 }
-
 
 @Composable
 fun RestaurantCard(
@@ -157,7 +169,10 @@ fun RestaurantCard(
 }
 
 @Composable
-fun MenuItemCard(item: MenuItemUiModel) {
+fun MenuItemCard(
+   item: MenuItemUiModel,
+   onAddClick: () -> Unit
+) {
    Card(
       modifier = Modifier
          .fillMaxWidth()
@@ -171,8 +186,7 @@ fun MenuItemCard(item: MenuItemUiModel) {
             model = item.imageUrl,
             contentDescription = item.name,
             modifier = Modifier.size(80.dp),
-            contentScale = ContentScale.Crop,
-            error = painterResource(android.R.drawable.ic_menu_report_image)
+            contentScale = ContentScale.Crop
          )
 
          Spacer(modifier = Modifier.width(12.dp))
@@ -184,7 +198,7 @@ fun MenuItemCard(item: MenuItemUiModel) {
          }
 
          Button(
-            onClick = { },
+            onClick = onAddClick,
             shape = RoundedCornerShape(8.dp)
          ) {
             Text("Add")
@@ -192,8 +206,3 @@ fun MenuItemCard(item: MenuItemUiModel) {
       }
    }
 }
-
-
-
-
-

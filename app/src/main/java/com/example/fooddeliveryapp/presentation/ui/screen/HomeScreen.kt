@@ -12,16 +12,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.items
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import coil.compose.AsyncImage
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.material.icons.filled.List
 import com.example.fooddeliveryapp.presentation.ui.screen.destinations.RestrauntMenuScreenDestination
+import com.example.fooddeliveryapp.presentation.ui.viewModel.CartViewModel
+import com.example.fooddeliveryapp.presentation.ui.viewModel.HomeViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
@@ -79,37 +77,38 @@ val dummyRestaurants = listOf(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 @Destination(start = true)
-fun HomeScreen( navigator: DestinationsNavigator) {
-
-    var selectedTab by remember { mutableStateOf<BottomNavItem>(BottomNavItem.Home) }
-
+fun HomeScreen(
+    navigator: DestinationsNavigator,
+    homeViewModel: HomeViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    cartViewModel: CartViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
     Scaffold(
         bottomBar = {
             BottomNavBar(
-                selectedItem = selectedTab,
-                onItemSelected = { selectedTab = it }
+                selectedItem = homeViewModel.selectedTab,
+                onItemSelected = homeViewModel::onTabSelected
             )
         }
-    ) {  _ ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
+    ) {
+        Column {
 
-            HomeTopBar()
+            HomeTopBar(
+                cartCount = cartViewModel.cartItemCount,
+                showBackButton = false
+            )
+
             HomeSearchBar()
             Spacer(modifier = Modifier.height(8.dp))
 
-            when (selectedTab) {
+            when (homeViewModel.selectedTab) {
                 BottomNavItem.Home -> {
                     LazyColumn {
-                        items(dummyRestaurants) { restaurant ->
+                        items(homeViewModel.restaurants) { restaurant ->
                             RestaurantCard(
                                 restaurant = restaurant,
                                 onClick = {
                                     navigator.navigate(
-                                        RestrauntMenuScreenDestination
-                                        (
+                                        RestrauntMenuScreenDestination(
                                             restaurantName = restaurant.name
                                         )
                                     )
@@ -117,11 +116,9 @@ fun HomeScreen( navigator: DestinationsNavigator) {
                             )
                         }
                     }
-
                 }
 
                 BottomNavItem.Orders -> {
-                    //Temporary Orders UI
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -133,8 +130,6 @@ fun HomeScreen( navigator: DestinationsNavigator) {
         }
     }
 }
-
-
 
 @Composable
 fun RestaurantCard(restaurant: RestaurantUiModel) {
@@ -174,20 +169,34 @@ fun RestaurantCard(restaurant: RestaurantUiModel) {
     }
 }
 
-
-
 @Composable
-fun HomeTopBar() {
+fun HomeTopBar(
+    cartCount: Int,
+    showBackButton: Boolean = false,
+    onBackClick: () -> Unit = {},
+    onCartClick: () -> Unit = {}
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding( horizontal = 16.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
+        // Back Button (only when needed)
+        if (showBackButton) {
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back"
+                )
+            }
+        }
+
         // Address Section
-        Column {
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
             Text(
                 text = "Deliver to",
                 style = MaterialTheme.typography.labelLarge,
@@ -208,16 +217,27 @@ fun HomeTopBar() {
             }
         }
 
-        // Profile Icon
-        IconButton(onClick = {  }) {
-            Icon(
-                imageVector = Icons.Default.AccountCircle,
-                contentDescription = "Profile",
-                modifier = Modifier.size(32.dp)
-            )
+        // Cart Icon
+        Box {
+            IconButton(onClick = onCartClick) {
+                Icon(
+                    imageVector = Icons.Default.ShoppingCart,
+                    contentDescription = "Cart"
+                )
+            }
+
+            if (cartCount > 0) {
+                Badge(
+                    modifier = Modifier.align(Alignment.TopEnd)
+                ) {
+                    Text(cartCount.toString())
+                }
+            }
         }
     }
 }
+
+
 @Composable
 fun HomeSearchBar() {
     OutlinedTextField(
