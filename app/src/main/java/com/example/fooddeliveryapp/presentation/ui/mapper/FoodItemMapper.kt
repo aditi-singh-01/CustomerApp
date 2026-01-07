@@ -1,7 +1,8 @@
-package com.example.fooddeliveryapp.presentation.mapper
+package com.example.fooddeliveryapp.presentation.ui.mapper
 
+import android.util.Log
 import com.example.fooddeliveryapp.domain.model.FoodMenuModel
-import com.example.fooddeliveryapp.presentation.ui.screen.MenuItemUiModel
+import com.example.fooddeliveryapp.presentation.ui.model.MenuItemUiModel
 
 fun FoodMenuModel.toUiModel() : MenuItemUiModel {
     return MenuItemUiModel(

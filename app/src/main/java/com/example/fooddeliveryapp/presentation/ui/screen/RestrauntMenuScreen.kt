@@ -31,15 +31,7 @@ import com.example.fooddeliveryapp.presentation.ui.viewModel.RestaurantMenuViewM
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
-
-data class MenuItemUiModel(
-   val id: Int,
-   val name: String,
-   val description: String,
-   val price: Int,
-   val imageUrl: String,
-   val rating: Double
-)
+import com.example.fooddeliveryapp.presentation.ui.model.MenuItemUiModel
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -61,8 +53,7 @@ fun RestrauntMenuScreen(
          )
       }
    ) {
-      Column {
-
+      Column (){
          HomeTopBar(
             cartCount = cartViewModel.cartItemCount,
             showBackButton = true,

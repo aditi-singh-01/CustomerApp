@@ -7,9 +7,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fooddeliveryapp.domain.useCase.GetFoodMenuUseCase
-import com.example.fooddeliveryapp.presentation.mapper.toUiModel
+import com.example.fooddeliveryapp.presentation.ui.mapper.toUiModel
 import com.example.fooddeliveryapp.presentation.ui.screen.BottomNavItem
-import com.example.fooddeliveryapp.presentation.ui.screen.MenuItemUiModel
+import com.example.fooddeliveryapp.presentation.ui.model.MenuItemUiModel
 import kotlinx.coroutines.launch
 
 data class RestaurantMenuUiState(
