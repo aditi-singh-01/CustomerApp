@@ -30,8 +30,10 @@ import com.example.fooddeliveryapp.presentation.ui.viewModel.CartViewModel
 import com.example.fooddeliveryapp.presentation.ui.viewModel.RestaurantMenuViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import org.koin.androidx.compose.koinViewModel
 
 data class MenuItemUiModel(
+   val id: Int,
    val name: String,
    val description: String,
    val price: Int,
@@ -39,50 +41,6 @@ data class MenuItemUiModel(
    val rating: Double
 )
 
-val dummyMenuItems = listOf(
-   MenuItemUiModel(
-      name = "Chicken Biryani",
-      description = "Aromatic basmati rice cooked with tender chicken and spices",
-      price = 220,
-      imageUrl = "https://images.unsplash.com/photo-1633945274309-2c16c9682c5b?w=800&h=800&fit=crop&auto=format",
-      rating = 4.6
-   ),
-   MenuItemUiModel(
-      name = "Paneer Butter Masala",
-      description = "Soft paneer cubes in rich tomato butter gravy",
-      price = 180,
-      imageUrl = "https://images.unsplash.com/photo-1628294896516-344152572ee3?w=800&h=800&fit=crop&auto=format",
-      rating = 4.5
-   ),
-   MenuItemUiModel(
-      name = "Masala Dosa",
-      description = "Crispy dosa with spiced potato filling",
-      price = 120,
-      imageUrl = "https://images.unsplash.com/photo-1626078299003-9a3a6b69c8b3?w=800&h=800&fit=crop&auto=format",
-      rating = 4.4
-   ),
-   MenuItemUiModel(
-      name = "Butter Chicken",
-      description = "Creamy tomato-based curry with grilled chicken",
-      price = 240,
-      imageUrl = "https://images.unsplash.com/photo-1600628422019-7f44e40f4f90?w=800&h=800&fit=crop&auto=format",
-      rating = 4.7
-   ),
-   MenuItemUiModel(
-      name = "Veg Thali",
-      description = "Assorted Indian curries served with rice and roti",
-      price = 200,
-      imageUrl = "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=800&h=800&fit=crop&auto=format",
-      rating = 4.3
-   ),
-   MenuItemUiModel(
-      name = "Gobi Manchurian",
-      description = "Crispy cauliflower tossed in spicy sauce",
-      price = 150,
-      imageUrl = "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=800&h=800&fit=crop&auto=format",
-      rating = 4.2
-   )
-)
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -90,13 +48,15 @@ val dummyMenuItems = listOf(
 fun RestrauntMenuScreen(
    restaurantName: String,
    navigator: DestinationsNavigator,
-   viewModel: RestaurantMenuViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+   viewModel: RestaurantMenuViewModel = koinViewModel(),
    cartViewModel: CartViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
+   val state = viewModel.uiState
+
    Scaffold(
       bottomBar = {
          BottomNavBar(
-            selectedItem = viewModel.selectedTab,
+            selectedItem = state.selectedTab,
             onItemSelected = viewModel::onTabSelected
          )
       }
@@ -122,7 +82,7 @@ fun RestrauntMenuScreen(
          Spacer(modifier = Modifier.height(8.dp))
 
          LazyColumn {
-            items(viewModel.menuItems) { item ->
+            items(state.menuItems) { item ->
                MenuItemCard(
                   item = item,
                   onAddClick = { cartViewModel.addItem() }

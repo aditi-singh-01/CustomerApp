@@ -5,18 +5,49 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.fooddeliveryapp.domain.useCase.GetFoodMenuUseCase
+import com.example.fooddeliveryapp.presentation.mapper.toUiModel
 import com.example.fooddeliveryapp.presentation.ui.screen.BottomNavItem
 import com.example.fooddeliveryapp.presentation.ui.screen.MenuItemUiModel
-import com.example.fooddeliveryapp.presentation.ui.screen.dummyMenuItems
+import kotlinx.coroutines.launch
 
-class RestaurantMenuViewModel : ViewModel() {
+data class RestaurantMenuUiState(
+    val selectedTab: BottomNavItem = BottomNavItem.Home,
+    val isLoading: Boolean = false,
+    val menuItems: List<MenuItemUiModel> = emptyList(),
+    val error: String? = null
+)
 
-    var selectedTab by mutableStateOf<BottomNavItem>(BottomNavItem.Home)
+
+class RestaurantMenuViewModel(
+    private val getFoodMenuUseCase: GetFoodMenuUseCase
+) : ViewModel(){
+
+    var uiState by mutableStateOf(RestaurantMenuUiState())
         private set
 
-    val menuItems: List<MenuItemUiModel> = dummyMenuItems
-
-    fun onTabSelected(item: BottomNavItem) {
-        selectedTab = item
+    init {
+        loadMenu()
     }
+
+    private fun loadMenu(){
+        viewModelScope.launch {
+            uiState = uiState.copy(isLoading = true)
+            try {
+                val menu = getFoodMenuUseCase()
+                uiState = uiState.copy(
+                    isLoading = false,
+                    menuItems = menu.map { it.toUiModel() })
+            } catch (e: Exception) {
+                uiState = uiState.copy(isLoading = false, error = e.message)
+
+            }
+        }
+    }
+
+    fun onTabSelected(item: BottomNavItem){
+        uiState = uiState.copy(selectedTab = item)
+    }
+
 }
