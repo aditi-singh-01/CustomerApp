@@ -1,14 +1,14 @@
 package com.example.fooddeliveryapp.data.repository
 
-import com.example.fooddeliveryapp.data.source.DummyRestaurantDataSource
-import com.example.fooddeliveryapp.domain.model.RestaurantModelUI
-import com.example.fooddeliveryapp.domain.repository.RestaurantRepository
+import com.example.fooddeliveryapp.data.repository.DummyRestaurantData
+import com.example.fooddeliveryapp.domain.model.Restaurant
+import com.example.fooddeliveryapp.data.repository.Repository
 import kotlinx.coroutines.delay
 
-class RestaurantRepositoryImpl : RestaurantRepository {
+class RestaurantRepositoryImpl : Repository {
 
-    override suspend fun getRestaurants(): List<RestaurantModelUI> {
+    override suspend fun getRestaurants(): List<Restaurant> {
         delay(500) // simulate network delay
-        return DummyRestaurantDataSource.getRestaurants()
+        return DummyRestaurantData.restaurants
     }
 }

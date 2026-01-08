@@ -1,4 +1,4 @@
-package com.example.fooddeliveryapp.presentaion.viewmodel
+package com.example.fooddeliveryapp.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.example.fooddeliveryapp.domain.usecase.GetRestaurantsUseCase

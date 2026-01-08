@@ -16,8 +16,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import androidx.compose.runtime.collectAsState
-import com.example.fooddeliveryapp.presentaion.viewmodel.HomeViewModel
-import com.example.fooddeliveryapp.presentation.home.RestaurantUiModel
+import com.example.fooddeliveryapp.presentation.viewmodel.HomeViewModel
+import com.example.fooddeliveryapp.presentation.ui.home.RestaurantUiModel
 
 @Composable
 fun HomeScreen(

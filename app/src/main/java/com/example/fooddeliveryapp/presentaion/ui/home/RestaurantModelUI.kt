@@ -1,4 +1,5 @@
-package com.example.fooddeliveryapp.presentation.home
+package com.example.fooddeliveryapp.presentation.ui.home
+
 
 data class RestaurantUiModel(
     val name: String,

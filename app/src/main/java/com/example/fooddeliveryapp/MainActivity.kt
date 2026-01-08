@@ -8,7 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import com.example.fooddeliveryapp.presentation.ui.home.HomeScreen
 import com.example.fooddeliveryapp.presentaion.ui.theme.FoodDeliveryAppTheme
-import com.example.fooddeliveryapp.presentaion.viewmodel.HomeViewModel
+import com.example.fooddeliveryapp.presentation.viewmodel.HomeViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 class MainActivity : ComponentActivity() {
 

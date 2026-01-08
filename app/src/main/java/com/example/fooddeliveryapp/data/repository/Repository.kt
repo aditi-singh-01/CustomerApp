@@ -1,7 +1,7 @@
-package com.example.fooddeliveryapp.domain.repository
+package com.example.fooddeliveryapp.data.repository
 
-import com.example.fooddeliveryapp.domain.model.RestaurantModelUI
+import com.example.fooddeliveryapp.domain.model.Restaurant
 
-interface RestaurantRepository {
-    suspend fun getRestaurants(): List<RestaurantModelUI>
+interface Repository {
+    suspend fun getRestaurants(): List<Restaurant>
 }
