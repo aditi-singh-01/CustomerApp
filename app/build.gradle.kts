@@ -59,4 +59,13 @@ dependencies {
 
     implementation("io.coil-kt:coil-compose:2.6.0")
 
+    implementation("org.orbit-mvi:orbit-core:9.0.0")
+    implementation("org.orbit-mvi:orbit-viewmodel:9.0.0")
+    implementation("org.orbit-mvi:orbit-compose:9.0.0")
+
+    // Koin for Android
+    implementation("io.insert-koin:koin-android:3.5.3")
+
+    // Koin for Jetpack Compose
+    implementation("io.insert-koin:koin-androidx-compose:3.5.3")
 }

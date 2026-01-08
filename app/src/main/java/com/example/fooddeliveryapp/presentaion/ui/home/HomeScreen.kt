@@ -1,84 +1,37 @@
-package com.example.fooddeliveryapp.presentaion.ui.home
+package com.example.fooddeliveryapp.presentation.ui.home
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.lazy.items
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import coil.compose.AsyncImage
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.material.icons.filled.List
-
-
-
-
-data class RestaurantUiModel(
-    val name: String,
-    val rating: Double,
-    val imageUrl: String
-)
-
-
-val dummyRestaurants = listOf(
-    RestaurantUiModel(
-        name = "Veggie Zone",
-        rating = 4.0,
-        imageUrl = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c"
-    ),
-    RestaurantUiModel(
-        name = "Burger Hub",
-        rating = 4.3,
-        imageUrl = "https://images.unsplash.com/photo-1550547660-d9450f859349"
-    ),
-    RestaurantUiModel(
-        name = "Spice Garden",
-        rating = 4.1,
-        imageUrl = "https://images.unsplash.com/photo-1550547660-d9450f859349"
-    ),
-    RestaurantUiModel(
-        name = "Truffles",
-        rating = 4.1,
-        imageUrl = "https://images.unsplash.com/photo-1550547660-d9450f859349"
-    ),
-    RestaurantUiModel(
-        name = "Subway",
-        rating = 4.1,
-        imageUrl = "https://images.unsplash.com/photo-1550547660-d9450f859349"
-    ),
-    RestaurantUiModel(
-        name = "Meghna",
-        rating = 4.1,
-        imageUrl = "https://images.unsplash.com/photo-1550547660-d9450f859349"
-    ),
-    RestaurantUiModel(
-        name = "Nalapaka",
-        rating = 4.1,
-        imageUrl = "https://images.unsplash.com/photo-1550547660-d9450f859349"
-    ),
-    RestaurantUiModel(
-        name = "Meghna",
-        rating = 4.1,
-        imageUrl = "https://images.unsplash.com/photo-1550547660-d9450f859349"
-    )
-
-)
+import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import androidx.compose.runtime.collectAsState
+import com.example.fooddeliveryapp.presentaion.viewmodel.HomeViewModel
+import com.example.fooddeliveryapp.presentation.home.RestaurantUiModel
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    viewModel: HomeViewModel
+    //viewModel: CartViewModel
+) {
 
-    var selectedTab by remember { mutableStateOf<BottomNavItem>(BottomNavItem.Home) }
+    // observe UI state from viewmodel
+    val uiState by viewModel.container.stateFlow.collectAsState() //uiState is defined in homeviewmodel
+
+    // Stores the currently selected bottom tab
+    var selectedTab by remember {
+        mutableStateOf<BottomNavItem>(BottomNavItem.Home)
+    }
 
     Scaffold(
         bottomBar = {
@@ -87,11 +40,11 @@ fun HomeScreen() {
                 onItemSelected = { selectedTab = it }
             )
         }
-    ) { paddingValues ->
+    ) { padding ->
 
         Column(
             modifier = Modifier
-                .padding(paddingValues)
+                .padding(padding)
                 .fillMaxSize()
         ) {
 
@@ -100,22 +53,34 @@ fun HomeScreen() {
             Spacer(modifier = Modifier.height(8.dp))
 
             when (selectedTab) {
-                BottomNavItem.Home -> {
-                    // 👇 Your existing restaurant list
-                    LazyColumn {
-                        items(dummyRestaurants) { restaurant ->
-                            RestaurantCard(restaurant)
+
+                //This will run only when HOME tab is selected
+                BottomNavItem.Home -> { //
+                    if (uiState.isLoading) { // if this will be true , loader will be shown means data is still being loaded
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    } else {  //data is ready to be displayed On Screen(UI)
+                        LazyColumn {
+                            items(uiState.restaurants) { restaurant ->
+                                RestaurantCard(restaurant)
+                            }
                         }
                     }
                 }
 
                 BottomNavItem.Orders -> {
-                    // 👇 Temporary Orders UI
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Orders Screen")
+                        Text(
+                            text = "Orders Screen",
+                            style = MaterialTheme.typography.titleMedium
+                        )
                     }
                 }
             }
@@ -123,23 +88,22 @@ fun HomeScreen() {
     }
 }
 
-
-
 @Composable
-fun RestaurantCard(restaurant: RestaurantUiModel) {
+fun RestaurantCard(
+    restaurant: RestaurantUiModel
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            // 🖼 IMAGE
             AsyncImage(
                 model = restaurant.imageUrl,
                 contentDescription = restaurant.name,
@@ -151,7 +115,6 @@ fun RestaurantCard(restaurant: RestaurantUiModel) {
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // 📝 TEXT
             Column {
                 Text(
                     text = restaurant.name,
@@ -167,20 +130,17 @@ fun RestaurantCard(restaurant: RestaurantUiModel) {
     }
 }
 
-
-
 @Composable
 fun HomeTopBar() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .statusBarsPadding()
-            .padding( horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        // Address Section
         Column {
             Text(
                 text = "Deliver to",
@@ -202,8 +162,7 @@ fun HomeTopBar() {
             }
         }
 
-        // Profile Icon
-        IconButton(onClick = {  }) {
+        IconButton(onClick = { }) {
             Icon(
                 imageVector = Icons.Default.AccountCircle,
                 contentDescription = "Profile",
@@ -212,12 +171,15 @@ fun HomeTopBar() {
         }
     }
 }
+
 @Composable
 fun HomeSearchBar() {
     OutlinedTextField(
         value = "",
         onValueChange = {},
-        placeholder = { Text("Search for restaurants or dishes") },
+        placeholder = {
+            Text(text = "Search for restaurants or dishes")
+        },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
@@ -246,6 +208,7 @@ fun BottomNavBar(
     onItemSelected: (BottomNavItem) -> Unit
 ) {
     NavigationBar {
+
         NavigationBarItem(
             selected = selectedItem == BottomNavItem.Home,
             onClick = { onItemSelected(BottomNavItem.Home) },
@@ -267,14 +230,7 @@ fun BottomNavBar(
                     contentDescription = "Orders"
                 )
             },
-            label = { Text("Order List") }
+            label = { Text("Orders") }
         )
     }
 }
-
-
-
-
-
-
-
