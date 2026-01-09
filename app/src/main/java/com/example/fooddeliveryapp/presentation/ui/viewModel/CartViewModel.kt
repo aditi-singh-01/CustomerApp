@@ -54,18 +54,22 @@ class CartViewModel(
 
     fun placeOrder() {
         viewModelScope.launch {
-            val order = Order(
-                id = "ORD"+(1000..9999).random().toString(),
-                pickupAddress = "Customer app entry",
-                deliveryAddress = "User delivery address",
-                customerName = "Aditi Singh",
-                amount = uiState.totalAmount.toDouble(),
-                distance = "3.2 km",
-                status = OrderStatus.ASSIGNED
-            )
+            try {
+                val order = Order(
+                    id = "ORD${(1000..9999).random()}",
+                    pickupAddress = "Green glen layout",
+                    deliveryAddress = "Sarjapur rd.",
+                    customerName = "Aditi Singh",
+                    amount = uiState.totalAmount.toDouble(),
+                    distance = "3.2 km",
+                    status = OrderStatus.ASSIGNED
+                )
+                createOrderUseCase(order)
+                clearCart()
 
-            createOrderUseCase(order)
-            clearCartUseCase()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
