@@ -32,6 +32,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
 import com.example.fooddeliveryapp.presentation.ui.model.MenuItemUiModel
+import com.example.fooddeliveryapp.presentation.ui.model.RestaurantUiModel
 import com.example.fooddeliveryapp.presentation.ui.screen.destinations.CartScreenDestination
 import com.example.fooddeliveryapp.presentation.ui.viewModel.CartViewModel
 
@@ -124,8 +125,8 @@ fun RestrauntMenuScreen(
 
 @Composable
 fun RestaurantCard(
-   restaurant: RestaurantUiModel,
-   onClick: () -> Unit
+    restaurant: RestaurantUiModel,
+    onClick: () -> Unit
 ) {
    Card(
       modifier = Modifier
