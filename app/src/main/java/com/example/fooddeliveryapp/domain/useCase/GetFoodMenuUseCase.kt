@@ -1,12 +1,12 @@
 package com.example.fooddeliveryapp.domain.useCase
 
+import com.example.fooddeliveryapp.data.repository.FoodMenuInfoRepository
 import com.example.fooddeliveryapp.domain.model.FoodMenuModel
-import com.example.fooddeliveryapp.domain.repository.FoodMenuRepository
 
 class GetFoodMenuUseCase(
-    private val repository: FoodMenuRepository
+    private val repository: FoodMenuInfoRepository
 ) {
-    suspend operator fun invoke() : List<FoodMenuModel>{
+    suspend operator fun invoke(): List<FoodMenuModel> {
         return repository.getMenu()
     }
 }

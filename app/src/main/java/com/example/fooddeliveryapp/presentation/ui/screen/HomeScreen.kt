@@ -1,6 +1,5 @@
 package com.example.fooddeliveryapp.presentation.ui.screen
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,6 +21,7 @@ import com.example.fooddeliveryapp.presentation.ui.viewModel.CartViewModel
 import com.example.fooddeliveryapp.presentation.ui.viewModel.HomeViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import org.koin.androidx.compose.koinViewModel
 
 data class RestaurantUiModel(
     val name: String,
@@ -74,14 +74,15 @@ val dummyRestaurants = listOf(
 
 )
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 @Destination(start = true)
 fun HomeScreen(
     navigator: DestinationsNavigator,
     homeViewModel: HomeViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
-    cartViewModel: CartViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
+    val cartViewModel: CartViewModel = koinViewModel()
+    val cartCount = cartViewModel.uiState.items.size
+
     Scaffold(
         bottomBar = {
             BottomNavBar(
@@ -89,12 +90,16 @@ fun HomeScreen(
                 onItemSelected = homeViewModel::onTabSelected
             )
         }
-    ) {
-        Column {
+    ) { paddingValues ->
+
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)) {
 
             HomeTopBar(
-                cartCount = cartViewModel.cartItemCount,
-                showBackButton = false
+                cartCount = cartCount,
+                showBackButton = false,
+                onCartClick = {}
             )
 
             HomeSearchBar()
@@ -183,7 +188,6 @@ fun HomeTopBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        // Back Button (only when needed)
         if (showBackButton) {
             IconButton(onClick = onBackClick) {
                 Icon(
@@ -193,7 +197,6 @@ fun HomeTopBar(
             }
         }
 
-        // Address Section
         Column(
             modifier = Modifier.weight(1f)
         ) {
@@ -217,7 +220,6 @@ fun HomeTopBar(
             }
         }
 
-        // Cart Icon
         Box {
             IconButton(onClick = onCartClick) {
                 Icon(
@@ -236,7 +238,6 @@ fun HomeTopBar(
         }
     }
 }
-
 
 @Composable
 fun HomeSearchBar() {

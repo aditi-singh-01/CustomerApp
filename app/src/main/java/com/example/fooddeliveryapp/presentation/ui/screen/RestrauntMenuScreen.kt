@@ -1,10 +1,10 @@
 package com.example.fooddeliveryapp.presentation.ui.screen
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,24 +26,27 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.fooddeliveryapp.presentation.ui.viewModel.CartViewModel
+import com.example.fooddeliveryapp.data.model.local.CartItem
 import com.example.fooddeliveryapp.presentation.ui.viewModel.RestaurantMenuViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
 import com.example.fooddeliveryapp.presentation.ui.model.MenuItemUiModel
+import com.example.fooddeliveryapp.presentation.ui.screen.destinations.CartScreenDestination
+import com.example.fooddeliveryapp.presentation.ui.viewModel.CartViewModel
 
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 @Destination
 fun RestrauntMenuScreen(
    restaurantName: String,
    navigator: DestinationsNavigator,
    viewModel: RestaurantMenuViewModel = koinViewModel(),
-   cartViewModel: CartViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
    val state = viewModel.uiState
+   val cartViewModel: CartViewModel = koinViewModel()
+   val cartState = cartViewModel.uiState
+
 
    Scaffold(
       bottomBar = {
@@ -52,13 +55,19 @@ fun RestrauntMenuScreen(
             onItemSelected = viewModel::onTabSelected
          )
       }
-   ) {
-      Column (){
+   ) { paddingValues ->
+
+      Column(modifier = Modifier
+         .fillMaxSize()
+         .padding(paddingValues)) {
          HomeTopBar(
-            cartCount = cartViewModel.cartItemCount,
+            cartCount = cartState.items.size,
             showBackButton = true,
             onBackClick = {
                navigator.popBackStack()
+            },
+            onCartClick = {
+               navigator.navigate(CartScreenDestination)
             }
          )
 
@@ -72,17 +81,46 @@ fun RestrauntMenuScreen(
 
          Spacer(modifier = Modifier.height(8.dp))
 
-         LazyColumn {
-            items(state.menuItems) { item ->
+         if (state.isLoading) {
+            Text(
+               text = "Loading menu...",
+               modifier = Modifier.padding(16.dp)
+            )
+            return@Column
+         }
+
+         state.error?.let {
+            Text(
+               text = it,
+               color = MaterialTheme.colorScheme.error,
+               modifier = Modifier.padding(16.dp)
+            )
+            return@Column
+         }
+
+         LazyColumn(
+            modifier = Modifier.fillMaxSize()
+         ) {
+            items(state.menuItems, key = { it.id }) { item ->
                MenuItemCard(
                   item = item,
-                  onAddClick = { cartViewModel.addItem() }
+                  onAddClick = {
+                     cartViewModel.addItem(
+                        CartItem(
+                           id = item.id,
+                           name = item.name,
+                           price = item.price,
+                           imageUrl = item.imageUrl
+                        )
+                     )
+                  }
                )
             }
          }
       }
    }
 }
+
 
 @Composable
 fun RestaurantCard(
