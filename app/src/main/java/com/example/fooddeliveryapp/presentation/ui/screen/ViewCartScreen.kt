@@ -27,7 +27,6 @@ fun CartScreen(
     viewModel: CartViewModel = koinViewModel()
 ) {
     val state = viewModel.uiState
-
     Scaffold(
         bottomBar = {
             BottomAppBar {
