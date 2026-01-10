@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fooddeliveryapp.data.model.local.CartItem
+import com.example.fooddeliveryapp.data.source.local.OrderLocalStore
 import com.example.fooddeliveryapp.domain.model.Order
 import com.example.fooddeliveryapp.domain.model.OrderStatus
 import com.example.fooddeliveryapp.domain.useCase.AddToCartUseCase
@@ -12,7 +13,6 @@ import com.example.fooddeliveryapp.domain.useCase.ClearCartUseCase
 import com.example.fooddeliveryapp.domain.useCase.CreateOrderUseCase
 import com.example.fooddeliveryapp.presentation.ui.mapper.toUiModel
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 data class CartUiState(
     val items: List<com.example.fooddeliveryapp.presentation.ui.model.CartItemUiModel> = emptyList(),
@@ -24,7 +24,8 @@ class CartViewModel(
     private val getCartItemsUseCase: GetCartItemsUseCase,
     private val addToCartUseCase: AddToCartUseCase,
     private val clearCartUseCase: ClearCartUseCase,
-    private val createOrderUseCase: CreateOrderUseCase
+    private val createOrderUseCase: CreateOrderUseCase,
+    private val orderLocalStore: OrderLocalStore
 ) : ViewModel() {
 
     var uiState by mutableStateOf(CartUiState())
@@ -52,22 +53,23 @@ class CartViewModel(
         uiState = CartUiState()
     }
 
-    fun placeOrder() {
+    fun placeOrder(): String {
+        val orderId = "ORD${(1000..9999).random()}"
         viewModelScope.launch {
             val order = Order(
-                id = "ORD"+(1000..9999).random().toString(),
-                pickupAddress = "Customer app entry",
-                deliveryAddress = "User delivery address",
+                id = orderId,
+                pickupAddress = "Green glen layout",
+                deliveryAddress = "Sarjapur rd.",
                 customerName = "Aditi Singh",
                 amount = uiState.totalAmount.toDouble(),
                 distance = "3.2 km",
                 status = OrderStatus.ASSIGNED
             )
-
             createOrderUseCase(order)
+            orderLocalStore.saveOrderId(orderId)
             clearCartUseCase()
         }
+        return orderId
     }
-
 
 }

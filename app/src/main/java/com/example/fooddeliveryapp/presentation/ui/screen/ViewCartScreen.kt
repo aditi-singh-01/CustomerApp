@@ -17,7 +17,7 @@ import coil.compose.AsyncImage
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.RoundedCornerShape
-
+import com.example.fooddeliveryapp.presentation.ui.screen.destinations.OrderStatusScreenDestination
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -45,9 +45,13 @@ fun CartScreen(
                     }
 
                     Button(
-                        onClick = viewModel::placeOrder,
+                        onClick = {
+                            val orderId = viewModel.placeOrder()
+                            navigator.navigate(OrderStatusScreenDestination(orderId))
+                        },
                         modifier = Modifier.weight(1f),
-                        enabled = state.items.isNotEmpty()
+                        enabled = state.items.isNotEmpty(),
+
                     ) {
                         Text("Place Order • ₹${state.totalAmount}")
                     }

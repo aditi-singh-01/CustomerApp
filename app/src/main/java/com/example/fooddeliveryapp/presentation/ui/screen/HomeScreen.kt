@@ -23,18 +23,15 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
 
+@Destination
 @Composable
-@Destination(start = true)
 fun HomeScreen(
     navigator: DestinationsNavigator,
     viewModel: HomeViewModel = koinViewModel()
 ) {
-
-    // Observe UI State from ViewModel (MVI)
     val uiState by viewModel.container.stateFlow.collectAsState()
     val cartViewModel: CartViewModel = koinViewModel()
     val cartCount = cartViewModel.uiState.items.size
-    // Bottom navigation state
     var selectedTab by remember {
         mutableStateOf<BottomNavItem>(BottomNavItem.Home)
     }

@@ -3,7 +3,6 @@ package com.example.fooddeliveryapp.presentation.ui.viewModel
 import androidx.lifecycle.ViewModel
 import com.example.fooddeliveryapp.domain.useCase.GetRestaurantsUseCase
 import com.example.fooddeliveryapp.presentation.ui.mapper.toUiModel
-
 import com.example.fooddeliveryapp.presentation.ui.model.RestaurantUiModel
 import com.example.fooddeliveryapp.presentation.ui.screen.BottomNavItem
 import org.orbitmvi.orbit.ContainerHost
@@ -17,7 +16,6 @@ class HomeViewModel(
 ) : ViewModel(),
     ContainerHost<HomeViewModel.State, HomeViewModel.SideEffect> {
 
-    // -------------------- STATE --------------------
     data class State(
         val selectedTab: BottomNavItem = BottomNavItem.Home,
         val isLoading: Boolean = false,
@@ -25,14 +23,12 @@ class HomeViewModel(
         val error: String? = null
     )
 
-    // -------------------- INTENT --------------------
     sealed class Intent {
         data object Load : Intent()
         data class TabSelected(val tab: BottomNavItem) : Intent()
         data class RestaurantClicked(val name: String) : Intent()
     }
 
-    // -------------------- SIDE EFFECT --------------------
     sealed class SideEffect {
         data class NavigateToMenu(val restaurantName: String) : SideEffect()
     }

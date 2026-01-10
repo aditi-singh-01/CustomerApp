@@ -1,4 +1,4 @@
-package com.example.fooddeliveryapp.data.repository
+package com.example.fooddeliveryapp.data.source.remote
 
 import com.example.fooddeliveryapp.data.model.local.Restaurant
 
