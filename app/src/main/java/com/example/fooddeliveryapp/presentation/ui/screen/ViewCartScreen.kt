@@ -19,7 +19,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.example.fooddeliveryapp.presentation.ui.screen.destinations.OrderStatusScreenDestination
 
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 @Destination
@@ -47,8 +46,8 @@ fun CartScreen(
 
                     Button(
                         onClick = {
-                            viewModel.placeOrder()
-                            navigator.navigate(OrderStatusScreenDestination)
+                            val orderId = viewModel.placeOrder()
+                            navigator.navigate(OrderStatusScreenDestination(orderId))
                         },
                         modifier = Modifier.weight(1f),
                         enabled = state.items.isNotEmpty(),

@@ -2,70 +2,60 @@ package com.example.fooddeliveryapp.di
 
 import com.example.fooddeliveryapp.data.repository.*
 import com.example.fooddeliveryapp.data.source.local.CartDataSource
+import com.example.fooddeliveryapp.data.source.local.OrderLocalStore
+import com.example.fooddeliveryapp.data.source.remote.DummyRestaurantData
 import com.example.fooddeliveryapp.data.source.remote.FoodMenuApi
 import com.example.fooddeliveryapp.domain.useCase.*
+import com.example.fooddeliveryapp.presentation.ui.viewModel.AppStartViewModel
 import com.example.fooddeliveryapp.presentation.ui.viewModel.CartViewModel
 import com.example.fooddeliveryapp.presentation.ui.viewModel.HomeViewModel
 import com.example.fooddeliveryapp.presentation.ui.viewModel.RestaurantMenuViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
+import com.example.fooddeliveryapp.presentation.ui.viewModel.OrderStatusViewModel
+import org.koin.android.ext.koin.androidContext
 
 val appModule = module {
 
-    /* -------------------- API / DATA SOURCES -------------------- */
-
+    // DATA SOURCES
     single { FoodMenuApi() }
+    single { DummyRestaurantData }
     single { CartDataSource() }
     single { FirebaseFirestore.getInstance() }
+    single { OrderLocalStore(androidContext()) }
 
-    /* -------------------- REPOSITORIES -------------------- */
-
-    // Restaurants (Home)
-    single<Repository> {
-        RestaurantRepositoryImpl()
-    }
-
-    // Food menu
+    // REPOSITORIES
     single { FoodMenuInfoRepository(get()) }
-    // Cart
+    single { CartRepository(get()) }
+    single { RestaurantRepositoryImpl() }
+    single { CartRepository(get()) }
     single {
-        CartRepository(get())
+        OrderRepositoryImpl(
+            firestore = get()
+        )
     }
 
-    // Orders
-    single {
-        OrderRepositoryImpl(get())
-    }
-
-    /* -------------------- USE CASES -------------------- */
-
-    // Home
-    factory {
-        GetRestaurantsUseCase(get())
-    }
-
-    // Menu
-    factory {
-        GetFoodMenuUseCase(get())
-    }
-
-    // Cart
+    // USE CASES
+    factory { GetFoodMenuUseCase(get()) }
     factory { GetCartItemsUseCase(get()) }
     factory { AddToCartUseCase(get()) }
     factory { ClearCartUseCase(get()) }
-    factory { CreateOrderUseCase(get()) }
+    factory { GetRestaurantsUseCase(get()) }
 
-    /* -------------------- VIEW MODELS -------------------- */
+    factory {
+        CreateOrderUseCase(
+            orderRepository = get(),
+            orderLocalStore = get()
+        )
+    }
 
-
-        viewModel {
-            HomeViewModel(
-                getRestaurantUsecase = get()
-            )
-        }
-
-
+    // VIEW MODELS
+    viewModel {
+        HomeViewModel(
+            getRestaurantUsecase = get()
+        )
+    }
 
     viewModel {
         RestaurantMenuViewModel(get())
@@ -76,7 +66,21 @@ val appModule = module {
             getCartItemsUseCase = get(),
             addToCartUseCase = get(),
             clearCartUseCase = get(),
-            createOrderUseCase = get()
+            createOrderUseCase = get(),
+            orderLocalStore = get()
+        )
+    }
+
+    viewModel {
+        OrderStatusViewModel(
+            orderRepository = get(),
+            orderLocalStore = get()
+        )
+    }
+
+    viewModel {
+        AppStartViewModel(
+            orderLocalStore = get()
         )
     }
 }

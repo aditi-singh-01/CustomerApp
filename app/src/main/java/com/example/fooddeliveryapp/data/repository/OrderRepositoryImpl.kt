@@ -10,8 +10,9 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 class OrderRepositoryImpl(
-    private val firestore: FirebaseFirestore
+    firestore: FirebaseFirestore
 ) {
+
     private val ordersCollection = firestore.collection("orders")
 
     suspend fun createOrder(order: Order) {
@@ -25,15 +26,23 @@ class OrderRepositoryImpl(
         val listener = ordersCollection
             .document(orderId)
             .addSnapshotListener { snapshot, error ->
-                if (error != null || snapshot == null) return@addSnapshotListener
+
+                if (error != null || snapshot == null) {
+                    return@addSnapshotListener
+                }
 
                 val statusString = snapshot.getString("status") ?: return@addSnapshotListener
-                try {
-                    trySend(OrderStatus.valueOf(statusString))
-                } catch (_: Exception) {
+
+                runCatching {
+                    OrderStatus.valueOf(statusString)
+                }.onSuccess { status ->
+                    trySend(status).isSuccess
                 }
             }
 
-        awaitClose { listener.remove() }
+        awaitClose {
+            listener.remove()
+        }
     }
+
 }
