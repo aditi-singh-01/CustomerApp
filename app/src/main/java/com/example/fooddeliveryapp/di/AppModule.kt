@@ -63,11 +63,11 @@ val appModule = module {
 
     viewModel {
         CartViewModel(
-            getCartItemsUseCase = get(),
-            addToCartUseCase = get(),
-            clearCartUseCase = get(),
-            createOrderUseCase = get(),
-            orderLocalStore = get()
+            get(),
+            get(),
+            get(),
+            get(),
+            get()
         )
     }
 
@@ -80,7 +80,7 @@ val appModule = module {
 
     viewModel {
         AppStartViewModel(
-            orderLocalStore = get()
+            get()
         )
     }
 }

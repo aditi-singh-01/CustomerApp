@@ -5,19 +5,22 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.font.FontWeight
+import coil.compose.AsyncImage
+import com.example.fooddeliveryapp.presentation.ui.viewModel.CartIntent
+import com.example.fooddeliveryapp.presentation.ui.viewModel.CartSideEffect
 import com.example.fooddeliveryapp.presentation.ui.viewModel.CartViewModel
+import com.example.fooddeliveryapp.presentation.ui.screen.destinations.OrderStatusScreenDestination
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
-import coil.compose.AsyncImage
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.shape.RoundedCornerShape
-import com.example.fooddeliveryapp.presentation.ui.screen.destinations.OrderStatusScreenDestination
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -26,8 +29,28 @@ fun CartScreen(
     navigator: DestinationsNavigator,
     viewModel: CartViewModel = koinViewModel()
 ) {
-    val state = viewModel.uiState
+    val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.sideEffect.collect { effect ->
+            when (effect) {
+                is CartSideEffect.NavigateToOrderStatus -> {
+                    navigator.navigate(
+                        OrderStatusScreenDestination(effect.orderId)
+                    )
+                }
+            }
+        }
+    }
+
     Scaffold(
+        topBar = {
+            HomeTopBar(
+                cartCount = state.cartCount,
+                showBackButton = true,
+                onBackClick = { navigator.popBackStack() }
+            )
+        },
         bottomBar = {
             BottomAppBar {
                 Row(
@@ -38,7 +61,9 @@ fun CartScreen(
                 ) {
 
                     OutlinedButton(
-                        onClick = viewModel::clearCart,
+                        onClick = {
+                            viewModel.onIntent(CartIntent.ClearCart)
+                        },
                         modifier = Modifier.weight(1f)
                     ) {
                         Text("Clear Cart")
@@ -46,12 +71,10 @@ fun CartScreen(
 
                     Button(
                         onClick = {
-                            val orderId = viewModel.placeOrder()
-                            navigator.navigate(OrderStatusScreenDestination(orderId))
+                            viewModel.onIntent(CartIntent.PlaceOrder)
                         },
                         modifier = Modifier.weight(1f),
-                        enabled = state.items.isNotEmpty(),
-
+                        enabled = state.items.isNotEmpty()
                     ) {
                         Text("Place Order • ₹${state.totalAmount}")
                     }
@@ -66,16 +89,9 @@ fun CartScreen(
                 .padding(paddingValues)
         ) {
 
-            HomeTopBar(
-                cartCount = state.items.size,
-                showBackButton = true,
-                onBackClick = { navigator.popBackStack() }
-            )
-
-
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                Spacer(modifier = Modifier.height(12.dp))
 
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Box(
                     modifier = Modifier
@@ -83,11 +99,19 @@ fun CartScreen(
                         .padding(vertical = 12.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "Your Cart",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Surface(
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        Text(
+                            text = "Your Cart",
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -145,7 +169,9 @@ fun CartScreen(
 
                             Text(
                                 text = "₹${item.price * item.quantity}",
-                                style = MaterialTheme.typography.titleMedium
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    color = MaterialTheme.colorScheme.primary
+                                )
                             )
                         }
 
@@ -159,5 +185,3 @@ fun CartScreen(
         }
     }
 }
-
-
