@@ -1,33 +1,59 @@
 package com.example.fooddeliveryapp.presentation.ui.viewModel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.fooddeliveryapp.data.repository.OrderRepositoryImpl
 import com.example.fooddeliveryapp.data.source.local.OrderLocalStore
 import com.example.fooddeliveryapp.domain.model.OrderStatus
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collectLatest
+import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.syntax.simple.intent
+import org.orbitmvi.orbit.syntax.simple.postSideEffect
+import org.orbitmvi.orbit.syntax.simple.reduce
+import org.orbitmvi.orbit.viewmodel.container
+
+data class OrderStatusState(
+    val isLoading: Boolean = true,
+    val orderStatus: OrderStatus? = null
+)
+
+sealed interface OrderStatusIntent {
+    data class StartObserving(val orderId: String) : OrderStatusIntent
+    data object ExitOrderStatus : OrderStatusIntent
+}
+
+sealed interface OrderStatusSideEffect {
+    data object NavigateHome : OrderStatusSideEffect
+}
 
 class OrderStatusViewModel(
     private val orderRepository: OrderRepositoryImpl,
     private val orderLocalStore: OrderLocalStore
-) : ViewModel() {
+) : ViewModel(),
+    ContainerHost<OrderStatusState, OrderStatusSideEffect> {
 
-    var orderStatus by mutableStateOf<OrderStatus?>(null)
-        private set
+    override val container = container<OrderStatusState, OrderStatusSideEffect>(
+        initialState = OrderStatusState()
+    )
 
-    fun startObserving(orderId: String) {
-        viewModelScope.launch {
-            orderRepository.observeOrderStatus(orderId).collect { status ->
-                orderStatus = status
+    fun onIntent(intent: OrderStatusIntent) = intent {
+        when (intent) {
 
-                if (status == OrderStatus.DELIVERED) {
-                    orderLocalStore.clearOrder()
-                }
+            is OrderStatusIntent.StartObserving -> {
+                orderRepository.observeOrderStatus(intent.orderId)
+                    .collectLatest { status ->
+                        reduce {
+                            state.copy(
+                                isLoading = false,
+                                orderStatus = status
+                            )
+                        }
+                    }
+            }
+
+            OrderStatusIntent.ExitOrderStatus -> {
+                orderLocalStore.clearOrder()
+                postSideEffect(OrderStatusSideEffect.NavigateHome)
             }
         }
     }
 }
-

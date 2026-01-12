@@ -1,53 +1,75 @@
 package com.example.fooddeliveryapp.presentation.ui.viewModel
 
-
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.fooddeliveryapp.domain.useCase.GetFoodMenuUseCase
 import com.example.fooddeliveryapp.presentation.ui.mapper.toUiModel
-import com.example.fooddeliveryapp.presentation.ui.screen.BottomNavItem
 import com.example.fooddeliveryapp.presentation.ui.model.MenuItemUiModel
-import kotlinx.coroutines.launch
-
-data class RestaurantMenuUiState(
-    val selectedTab: BottomNavItem = BottomNavItem.Home,
-    val isLoading: Boolean = false,
-    val menuItems: List<MenuItemUiModel> = emptyList(),
-    val error: String? = null
-)
-
+import com.example.fooddeliveryapp.presentation.ui.screen.BottomNavItem
+import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.syntax.simple.intent
+import org.orbitmvi.orbit.syntax.simple.postSideEffect
+import org.orbitmvi.orbit.syntax.simple.reduce
+import org.orbitmvi.orbit.viewmodel.container
 
 class RestaurantMenuViewModel(
     private val getFoodMenuUseCase: GetFoodMenuUseCase
-) : ViewModel(){
+) : ViewModel(),
+    ContainerHost<RestaurantMenuViewModel.State, RestaurantMenuViewModel.SideEffect> {
 
-    var uiState by mutableStateOf(RestaurantMenuUiState())
-        private set
-
-    init {
-        loadMenu()
+    data class State(
+        val selectedTab: BottomNavItem = BottomNavItem.Home,
+        val isLoading: Boolean = false,
+        val menuItems: List<MenuItemUiModel> = emptyList()
+    )
+    sealed interface Intent {
+        data object LoadMenu : Intent
+        data class TabSelected(val tab: BottomNavItem) : Intent
     }
 
-    private fun loadMenu(){
-        viewModelScope.launch {
-            uiState = uiState.copy(isLoading = true)
-            try {
-                val menu = getFoodMenuUseCase()
-                uiState = uiState.copy(
-                    isLoading = false,
-                    menuItems = menu.map { it.toUiModel() })
-            } catch (e: Exception) {
-                uiState = uiState.copy(isLoading = false, error = e.message)
+    sealed interface SideEffect {
+        data class ShowError(val message: String) : SideEffect
+    }
 
+    override val container = container<State, SideEffect>(
+        initialState = State()
+    )
+
+    init {
+        onIntent(Intent.LoadMenu)
+    }
+
+    fun onIntent(intent: Intent) = intent {
+        when (intent) {
+
+            Intent.LoadMenu -> loadMenu()
+
+            is Intent.TabSelected -> {
+                reduce {
+                    state.copy(selectedTab = intent.tab)
+                }
             }
         }
     }
 
-    fun onTabSelected(item: BottomNavItem){
-        uiState = uiState.copy(selectedTab = item)
-    }
+    private suspend fun loadMenu() = intent {
+        reduce { state.copy(isLoading = true) }
 
+        runCatching {
+            getFoodMenuUseCase()
+        }.onSuccess { menu ->
+            reduce {
+                state.copy(
+                    isLoading = false,
+                    menuItems = menu.map { it.toUiModel() }
+                )
+            }
+        }.onFailure { throwable ->
+            reduce { state.copy(isLoading = false) }
+            postSideEffect(
+                SideEffect.ShowError(
+                    throwable.message ?: "Something went wrong"
+                )
+            )
+        }
+    }
 }
