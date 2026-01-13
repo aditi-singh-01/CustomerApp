@@ -21,9 +21,10 @@ class RestaurantMenuViewModel(
         val isLoading: Boolean = false,
         val menuItems: List<MenuItemUiModel> = emptyList()
     )
-    sealed interface Intent {
-        data object LoadMenu : Intent
-        data class TabSelected(val tab: BottomNavItem) : Intent
+
+    sealed interface MenuIntent {
+        data class LoadMenu(val menuUrl: String) : MenuIntent
+        data class TabSelected(val tab: BottomNavItem) : MenuIntent
     }
 
     sealed interface SideEffect {
@@ -34,28 +35,26 @@ class RestaurantMenuViewModel(
         initialState = State()
     )
 
-    init {
-        onIntent(Intent.LoadMenu)
-    }
+    fun onIntent(menuIntent: MenuIntent) = intent {
+        when (menuIntent) {
 
-    fun onIntent(intent: Intent) = intent {
-        when (intent) {
+            is MenuIntent.LoadMenu -> {
+                loadMenu(menuIntent.menuUrl)
+            }
 
-            Intent.LoadMenu -> loadMenu()
-
-            is Intent.TabSelected -> {
+            is MenuIntent.TabSelected -> {
                 reduce {
-                    state.copy(selectedTab = intent.tab)
+                    state.copy(selectedTab = menuIntent.tab)
                 }
             }
         }
     }
 
-    private suspend fun loadMenu() = intent {
+    private suspend fun loadMenu(menuUrl: String) = intent {
         reduce { state.copy(isLoading = true) }
 
         runCatching {
-            getFoodMenuUseCase()
+            getFoodMenuUseCase(menuUrl)
         }.onSuccess { menu ->
             reduce {
                 state.copy(

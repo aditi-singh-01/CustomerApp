@@ -14,12 +14,28 @@ import com.google.firebase.firestore.FirebaseFirestore
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import com.example.fooddeliveryapp.presentation.ui.viewModel.OrderStatusViewModel
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.kotlinx.json.json
 import org.koin.android.ext.koin.androidContext
 
 val appModule = module {
 
     // DATA SOURCES
-    single { FoodMenuApi() }
+    single {
+        HttpClient(OkHttp) {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+    }
+
+    single {
+        FoodMenuApi(get())
+    }
+
+
     single { DummyRestaurantData }
     single { CartDataSource() }
     single { FirebaseFirestore.getInstance() }
@@ -61,15 +77,15 @@ val appModule = module {
         RestaurantMenuViewModel(get())
     }
 
-    viewModel {
-        CartViewModel(
-            get(),
-            get(),
-            get(),
-            get(),
-            get()
-        )
-    }
+//    viewModel {
+//        CartViewModel(
+//            get(),
+//            get(),
+//            get(),
+//            get(),
+//            get()
+//        )
+//    }
 
     viewModel {
         OrderStatusViewModel(
@@ -83,4 +99,14 @@ val appModule = module {
             get()
         )
     }
+    single {
+        CartViewModel(
+            get(),
+            get(),
+            get(),
+            get(),
+            get()
+        )
+    }
+
 }

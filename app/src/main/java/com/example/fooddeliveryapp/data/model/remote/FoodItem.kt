@@ -1,5 +1,8 @@
 package com.example.fooddeliveryapp.data.model.remote
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class FoodItem(
     val id: Int,
     val name: String,

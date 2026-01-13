@@ -4,6 +4,7 @@ import com.example.fooddeliveryapp.data.model.local.Restaurant
 import com.example.fooddeliveryapp.presentation.ui.model.RestaurantUiModel
 
 fun Restaurant.toUiModel() = RestaurantUiModel( //It converts a domain model into a UI model.
+    menuUrl = menuUrl,
     name = name,
     rating = rating,
     imageUrl = imageUrl

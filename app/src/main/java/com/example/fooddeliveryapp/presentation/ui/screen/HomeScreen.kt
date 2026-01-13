@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.fooddeliveryapp.presentation.ui.model.RestaurantUiModel
+import com.example.fooddeliveryapp.presentation.ui.screen.destinations.CartScreenDestination
 import com.example.fooddeliveryapp.presentation.ui.screen.destinations.RestrauntMenuScreenDestination
 import com.example.fooddeliveryapp.presentation.ui.viewModel.CartViewModel
 import com.example.fooddeliveryapp.presentation.ui.viewModel.HomeViewModel
@@ -46,7 +47,7 @@ fun HomeScreen(
                 cartCount = cartCount,
                 showBackButton = false,
                 onCartClick = {
-                   //Navigate to cart
+                    navigator.navigate(CartScreenDestination)
                 }
             )
         },
@@ -89,7 +90,8 @@ fun HomeScreen(
                                     onClick = {
                                         navigator.navigate(
                                             RestrauntMenuScreenDestination(
-                                                restaurantName = restaurant.name
+                                                restaurantName = restaurant.name,
+                                                menuUrl = restaurant.menuUrl
                                             )
                                         )
                                     }
@@ -168,7 +170,7 @@ fun HomeTopBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+        .padding(horizontal = 12.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
@@ -201,7 +203,7 @@ fun HomeTopBar(
                 )
                 Text(
                     text = "Deliver to",
-                    style = MaterialTheme.typography.labelMedium,
+                    style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
