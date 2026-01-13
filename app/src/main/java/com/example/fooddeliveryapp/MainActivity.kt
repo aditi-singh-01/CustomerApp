@@ -17,6 +17,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             FoodDeliveryAppTheme {
                 val navController = rememberNavController()
@@ -24,8 +25,7 @@ class MainActivity : ComponentActivity() {
                     navController = navController,
                     navGraph = NavGraphs.root,
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = 100.dp)
+                        .fillMaxSize().padding(top=30.dp)
                 )
             }
         }

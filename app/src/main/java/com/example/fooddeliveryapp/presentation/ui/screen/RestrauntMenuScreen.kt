@@ -1,5 +1,6 @@
 package com.example.fooddeliveryapp.presentation.ui.screen
 
+import android.content.Intent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -29,6 +30,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 @Composable
 fun RestrauntMenuScreen(
    restaurantName: String,
+   menuUrl: String,
    navigator: DestinationsNavigator,
    viewModel: RestaurantMenuViewModel = koinViewModel(),
    cartViewModel: CartViewModel = koinViewModel()
@@ -37,6 +39,13 @@ fun RestrauntMenuScreen(
    val cartState by cartViewModel.state.collectAsState()
 
    val snackbarHostState = remember { SnackbarHostState() }
+
+   LaunchedEffect(menuUrl) {
+      viewModel.onIntent(
+         RestaurantMenuViewModel.MenuIntent.LoadMenu(menuUrl)
+      )
+   }
+
 
    viewModel.collectSideEffect { effect ->
       when (effect) {
